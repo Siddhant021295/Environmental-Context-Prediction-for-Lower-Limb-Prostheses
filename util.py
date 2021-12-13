@@ -78,7 +78,7 @@ def assessNet(model,criterion,loader,classes,flag_cuda):
           class_total[label] += 1
 
   # Computing the average test loss
-  test_loss = test_loss/len(test_loader.dataset)
+  test_loss = test_loss/len(loader.dataset)
   print('Loss: {:.6f}\n'.format(test_loss))
 
   # Computing the class accuracies

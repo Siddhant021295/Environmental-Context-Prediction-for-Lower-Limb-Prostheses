@@ -17,7 +17,7 @@ if __name__ == '__main__':
     test_size = 0.1
     norm_method = Normalize([0, 0, 0], [1, 1, 1])
     batch_size = 64
-    n_epochs = 20
+    n_epochs = 5
     optimizer_name = 'Adam'
     criterion = nn.CrossEntropyLoss()
     flag_cuda = torch.cuda.is_available()
@@ -75,11 +75,11 @@ if __name__ == '__main__':
         print('####################')
         print('Test')
         print('####################')
-        assessNet(model,criterion,test_loader)
+        assessNet(model,criterion,test_loader,classes,flag_cuda)
         print('\n####################')
         print('Train')
         print('####################')
-        assessNet(model,criterion,train_loader)
+        assessNet(model,criterion,train_loader,classes,flag_cuda)
         
         model_data[save_model_name] = {
             'epochs_list' : epochs_list, 
