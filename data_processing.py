@@ -61,22 +61,22 @@ def stratified_with_same_number_of_samples(X_train,Y_train,min_count):
     
     
     
-    if df_0.shape[0] < min_count[0]:
+    if df_0.shape[0] > min_count[0]:
         df_0_sample = df_0.sample(min_count[0])
     else:
         df_0_sample = df_0.sample(min_count[0],replace= True)
     
-    if df_1.shape[0] < min_count[1]:
+    if df_1.shape[0] > min_count[1]:
         df_1_sample = df_1.sample(min_count[1])
     else:
         df_1_sample =   df_1.sample(min_count[1],replace= True)
     
-    if df_2.shape[0] < min_count[2]:
+    if df_2.shape[0] > min_count[2]:
         df_2_sample =   df_2.sample(min_count[2])
     else:
         df_2_sample =   df_2.sample(min_count[2],replace= True)
     
-    if df_3.shape[0] < min_count[3]:
+    if df_3.shape[0] > min_count[3]:
         df_3_sample =   df_3.sample(min_count[3])
     else:
         df_3_sample =   df_3.sample(min_count[3],replace= True)
@@ -120,41 +120,4 @@ def data_processing(data_all,window_size,step_size,test_size,min_count):
 
     len_train = X_train.shape[0]
     len_test = X_test.shape[0]
-    return X_train, Y_train,len_train,len_test,data_code
-
-transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize(( 0.5), (0.5)) 
-])
-
-class CustomImageDataset(Dataset):
-    def __init__(self, data,label,window_size):
-        self.y_data_point = label
-        self.x_data_point = data
-        self.window_size = window_size
-
-    def __len__(self):
-        return len(self.y_data_point)
-
-    def __getitem__(self, idx):
-        data = self.x_data_point[idx]
-        label = self.y_data_point[idx]
-        data = data.reshape(6,window_size)
-        return data, label
-
-    
-# Size of the batch
-batch_size = 64
-train_data = CustomImageDataset(X_train,Y_train,window_size)
-test_data = CustomImageDataset(X_test,Y_test,window_size)
-
-# Selecting the training and test datasets
-train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
-test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
-
-train_features,train_labels  = next(iter(train_loader))
-
-# specify the image classes
-classes = ['Standing/Walking on Solid Ground','Up The Stairs','Down The Stairs','Walking on grass']
-print(f"Feature batch shape: {train_features.size()}")
-print(f"Labels batch shape: {train_labels.size()}")
+    return X_train, Y_train,Y_test,X_test, len_train,len_test,data_code
