@@ -2,9 +2,9 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-class Net_CNN_Norm_Dropout(nn.Module):
+class CNN_Norm_Dropout(nn.Module):
   def __init__(self):
-    super(Net_CNN_Norm_Dropout, self).__init__()
+    super(CNN_Norm_Dropout, self).__init__()
     self.conv1 = nn.Conv1d(6, 12, 5,stride = 1)
     self.norm1 = nn.BatchNorm1d(12)
     self.conv2 = nn.Conv1d(12, 24, 5,stride = 1)

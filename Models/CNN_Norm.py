@@ -1,9 +1,9 @@
 import torch.nn as nn
 import torch.nn.functional as F
 # Defining the CNN with Batch Normalization layers architecture
-class Net_CNN_Norm(nn.Module):
+class CNN_Norm(nn.Module):
     def __init__(self):
-        super(Net_CNN_Norm, self).__init__()
+        super(CNN_Norm, self).__init__()
         self.conv1 = nn.Conv1d(6, 12, 5,stride = 1)
         self.norm1 = nn.BatchNorm1d(12)
 

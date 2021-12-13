@@ -2,10 +2,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class Net_CNN_LSTM_Norm_Dropout_All(nn.Module):
+class CNN_LSTM_Batch_Normalization(nn.Module):
   def __init__(self):
     
-    super(Net_CNN_LSTM_Norm_Dropout_All, self).__init__()
+    super(CNN_LSTM_Batch_Normalization, self).__init__()
     self.conv1 = nn.Conv1d(6, 12, 5,stride = 1,padding = 2)
     self.norm1 = nn.BatchNorm1d(12)
     self.conv2 = nn.Conv1d(12, 24, 5,stride = 1,padding = 2)
