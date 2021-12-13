@@ -1,4 +1,4 @@
-def validation(valid_losslist,model,test_loader):
+def validation(valid_losslist,model,test_loader,flag_cuda,len_test,criterion):
     valid_loss = 0.0
     for data, target in test_loader:
         # Moving tensors to GPU if CUDA is available

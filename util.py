@@ -2,22 +2,31 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from Models import CNN_LSTM_Batch_Normalization,CNN_Norm_Dropout_All,CNN_Norm_Dropout,CNN_Norm,CNN
+import numpy as np
+from train import training
+from validation import validation
+import torch
 
-def optimizer(optimizer_name,model):
+def optimizers(optimizer_name,model):
     if optimizer_name == 'Adam':
         return optim.Adam(model.parameters())
+    if optimizer_name == 'RMSprop':
+        return  optim.RMSprop(model.parameters(), lr=.001,alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False)
+    if optimizer_name == 'SGD':
+        return optim.SGD(model.parameters(), lr=.001,momentum = 0.9) 
 
-def models():
-    model_CNN_Net = CNN().float()
-    model_Net_CNN_Norm = CNN_Norm().float()
-    model_Net_CNN_Norm_Dropout = CNN_Norm_Dropout().float()
-    model_Net_CNN_Norm_Dropout_All = CNN_Norm_Dropout_All().float()
-    model_Net_CNN_LSTM_Norm_Dropout_All = CNN_LSTM_Batch_Normalization().float()
-    return {'model_Net_CNN_LSTM_Norm_Dropout_All':model_Net_CNN_LSTM_Norm_Dropout_All,
+def models(flag_cuda):
+    model_CNN_Net = CNN.CNN(flag_cuda)
+    model_Net_CNN_Norm = CNN_Norm.CNN_Norm(flag_cuda)
+    model_Net_CNN_Norm_Dropout = CNN_Norm_Dropout.CNN_Norm_Dropout(flag_cuda)
+    model_Net_CNN_Norm_Dropout_All = CNN_Norm_Dropout_All.CNN_Norm_Dropout_All(flag_cuda)
+    model_Net_CNN_LSTM_Norm_Dropout_All = CNN_LSTM_Batch_Normalization.CNN_LSTM_Batch_Normalization(flag_cuda)
+    return {
           'model_CNN_Net':model_CNN_Net,
+          'model_Net_CNN_LSTM_Norm_Dropout_All':model_Net_CNN_LSTM_Norm_Dropout_All,
           'model_Net_CNN_Norm' : model_Net_CNN_Norm,
           'model_Net_CNN_Norm_Dropout' : model_Net_CNN_Norm_Dropout,
-          'model_Net_CNN_Norm_Dropout_All': model_Net_CNN_Norm_Dropout_All,}
+          'model_Net_CNN_Norm_Dropout_All': model_Net_CNN_Norm_Dropout_All}
 
 
 def test_plot(confusion, all_categories):
@@ -39,7 +48,7 @@ def test_plot(confusion, all_categories):
 
 
 
-def assessNet(model,criterion,loader):
+def assessNet(model,criterion,loader,classes,flag_cuda):
   # Tracking test loss and accuracy
   test_loss = 0.0
   class_correct = list(0. for i in range(len(classes)))
@@ -88,7 +97,7 @@ def assessNet(model,criterion,loader):
 
 
 
-def trainNet(model,criterion,n_epochs,flag_cuda,save_model_name,optimizer,train_loader,test_loader):
+def trainNet(model,criterion,n_epochs,flag_cuda,save_model_name,optimizer,train_loader,test_loader,len_train,len_test):
       
   # Unpacking the number of epochs to train the model
   epochs_list = [*range(1,n_epochs+1)]
@@ -103,13 +112,13 @@ def trainNet(model,criterion,n_epochs,flag_cuda,save_model_name,optimizer,train_
       model.train()
       
       # Training
-      train_losslist,train_loss,model = training(train_losslist,model,train_loader)
+      train_losslist,train_loss,model = training(train_losslist,model,train_loader,flag_cuda,criterion,optimizer,len_train)
       
       # Change the mode of the model to evaluation
       model.eval()
       
       #Evaluation
-      valid_losslist,valid_loss,model = validation(valid_losslist,model,test_loader)
+      valid_losslist,valid_loss,model = validation(valid_losslist,model,test_loader,flag_cuda,len_test,criterion)
 
       # Printing training/validation statistics 
       print('Epoch: {} \tTraining Loss: {:.6f} \tValidation Loss: {:.6f}'.format(epoch, train_loss, valid_loss))

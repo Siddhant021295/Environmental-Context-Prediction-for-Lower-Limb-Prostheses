@@ -3,9 +3,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class CNN_LSTM_Batch_Normalization(nn.Module):
-  def __init__(self):
+  def __init__(self,flag_cuda):
     
     super(CNN_LSTM_Batch_Normalization, self).__init__()
+    self.flag_cuda = flag_cuda
     self.conv1 = nn.Conv1d(6, 12, 5,stride = 1,padding = 2)
     self.norm1 = nn.BatchNorm1d(12)
     self.conv2 = nn.Conv1d(12, 24, 5,stride = 1,padding = 2)
@@ -20,8 +21,8 @@ class CNN_LSTM_Batch_Normalization(nn.Module):
     self.drop = nn.Dropout(p =0.1)
     self.fc3 = nn.Linear(64, 4)
   
-  def forward(self, x,flag_cuda):
-    if flag_cuda:
+  def forward(self, x):
+    if self.flag_cuda:
         h0 = torch.zeros(2, x.size(0), 128).cuda()
         c0 = torch.zeros(2, x.size(0), 128).cuda()
     else:

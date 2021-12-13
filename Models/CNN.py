@@ -2,8 +2,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 # Defining the CNN layers architecture
 class CNN(nn.Module):
-    def __init__(self):
+    def __init__(self,flag_cuda):
         super(CNN, self).__init__()
+        self.flag_cuda = flag_cuda
         self.conv1 = nn.Conv1d(6, 12, 5,stride = 1)
         self.conv2 = nn.Conv1d(12, 24, 5,stride = 1)
         self.conv3 = nn.Conv1d(24, 48, 5,stride = 1)

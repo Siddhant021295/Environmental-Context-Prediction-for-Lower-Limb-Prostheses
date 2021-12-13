@@ -57,12 +57,6 @@ data_all.head()
 
 # Data Preparation function
 def data_prep(window_size,step_size,data_all,subject_name_instances):
-  x_list_acc = []
-  y_list_acc = []
-  z_list_acc = []
-  x_list_gyr = []
-  y_list_gyr = []
-  z_list_gyr = []
   train_labels = []
   data=[]
   for subject_name_instance in subject_name_instances:

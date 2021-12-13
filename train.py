@@ -1,4 +1,4 @@
-def training(train_losslist,model,train_loader):
+def training(train_losslist,model,train_loader,flag_cuda,criterion,optimizer,len_train):
     train_loss = 0.0
     for data, target in train_loader:
         # Moving tensors to GPU if CUDA is available
@@ -9,6 +9,7 @@ def training(train_losslist,model,train_loader):
 
         output = model(data)
         # Calculating the batch loss
+        # print(type(output),output, type(target),target)
         loss = criterion(output, target)
         # Backward pass: compute gradient of loss with respect to parameters
         loss.backward()

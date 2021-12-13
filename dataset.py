@@ -1,5 +1,5 @@
 from torch.utils.data import Dataset
-
+import torch
 class CustomImageDataset(Dataset):
     def __init__(self, data,label,window_size,transforms = None):
         self.y_data_point = label
@@ -14,6 +14,10 @@ class CustomImageDataset(Dataset):
         data = self.x_data_point[idx]
         label = self.y_data_point[idx]
         data = data.reshape(6,self.window_size)
+        # if self.transforms is not None:
+        #     data = self.transforms(data)
+        # print(label,type(label))
+        label = torch.tensor(label).long()
         return data, label
 
     
