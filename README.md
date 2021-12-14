@@ -42,16 +42,16 @@ Loss: 0.091480
 - Accuracy of Standing/Walking on Solid Ground: 99% (99504/100000)
 - Accuracy of Up the Stairs: 100% (100000/100000)
 - Accuracy of Down the Stairs: 99% (99994/100000)
-- Accuracy of Walking on grass: 99%
-(99597/100000)
-Accuracy (Overall): 99% (399095/400000)
+- Accuracy of Walking on grass: 99% (99597/100000)
+- Accuracy (Overall): 99% (399095/400000)
 #### Test
 Loss: 0.063158
 - Accuracy of Standing/Walking on Solid Ground: 98% (24459/24959)
 - Accuracy of Up the Stairs: 94% (1439/1531)
 - Accuracy of Down the Stairs: 88% (1793/2037)
 - Accuracy of Walking on grass: 84% (4176/4971)
-Accuracy (Overall): 95% (31867/33498)
+- Accuracy (Overall): 95% (31867/33498)
+
 Macro F1 score: 0.92
 
 ![image](https://user-images.githubusercontent.com/22122136/145945699-13cf70ad-fa20-4dd2-b942-2540c4359e08.png)
