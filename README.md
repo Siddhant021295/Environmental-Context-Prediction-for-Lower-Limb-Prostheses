@@ -3,11 +3,15 @@
 ## Project Overview
 
 Types of terrain pose challenge for intelligent prosthetic limbs. Our task is to use accelerometer and gyroscope readings, from sensors attached to the legs of subjects, to predict the type of surface the subject is walking on. There are four types of terrain/activity that are considered: (0) indicates standing or walking on solid ground, (1) indicates going down the stairs,(2) indicates going up the stairs, and (3) indicates walking on grass.
+
 ![image](https://user-images.githubusercontent.com/22122136/145943557-c5525ed5-ca07-4a4b-adab-a8ccf268de6d.png)
+
 ## MODEL TRAINING AND SELECTION
 ### A. Model Training
 Below is table showing Imbalance in training data.
+
 ![image](https://user-images.githubusercontent.com/22122136/145944386-5609f321-4a3e-4261-815b-ff805c6af333.png)
+
 Class 0 is the dominant class while Class 1 is the least present class in the data.
 - Step 1: We did an 90-10 split for the training and test sets respectively.
 - Step 2: Balancing the training dataset resampling was performed to have equal number, 100000 each, of different labels in training set.
@@ -16,6 +20,7 @@ Class 0 is the dominant class while Class 1 is the least present class in the da
 
 ### B. Model Selection
 We have implemented 5 different Convolution Neural Network, which have variability on basis of Normalization layer, LSTM layer, Dropout layer. Comparison of best model with other models in shown in Figure 1. (Performance of Adam models)
+
 ![image](https://user-images.githubusercontent.com/22122136/145944751-cc0ddf8e-731c-4b8c-b152-057d21d93c15.png)
 
 ### C. Best Model
@@ -34,17 +39,28 @@ After selecting the best model, we retrained this model for 20 epochs using the 
 ### Results:
 #### Train
 Loss: 0.091480
-• Accuracy of Standing/Walking on Solid Ground: 99% (99504/100000)
-• Accuracy of Up the Stairs: 100% (100000/100000)
-• Accuracy of Down the Stairs: 99% (99994/100000)
-• Accuracy of Walking on grass: 99%
+- Accuracy of Standing/Walking on Solid Ground: 99% (99504/100000)
+- Accuracy of Up the Stairs: 100% (100000/100000)
+- Accuracy of Down the Stairs: 99% (99994/100000)
+- Accuracy of Walking on grass: 99%
 (99597/100000)
 Accuracy (Overall): 99% (399095/400000)
 #### Test
 Loss: 0.063158
-• Accuracy of Standing/Walking on Solid Ground: 98% (24459/24959)
-• Accuracy of Up the Stairs: 94% (1439/1531)
-• Accuracy of Down the Stairs: 88% (1793/2037)
-• Accuracy of Walking on grass: 84% (4176/4971)
+- Accuracy of Standing/Walking on Solid Ground: 98% (24459/24959)
+- Accuracy of Up the Stairs: 94% (1439/1531)
+- Accuracy of Down the Stairs: 88% (1793/2037)
+- Accuracy of Walking on grass: 84% (4176/4971)
 Accuracy (Overall): 95% (31867/33498)
 Macro F1 score: 0.92
+
+![image](https://user-images.githubusercontent.com/22122136/145945699-13cf70ad-fa20-4dd2-b942-2540c4359e08.png)
+
+## REFERENCES
+
+1. Jennifer R. Kwapisz, Gary M. Weiss and Samuel Moore (2010). Activity Recognition using Cell Phone Accelerometers, Proceedings of the Fourth International Workshop on Knowledge Discovery from Senor Data (at KDD-10), Washington DC.
+2. Davide Anguita, Alessandro Ghio, Luca Oneto, Xavier Parra and Jorge L. Reyes-Ortiz. A Public Domain Dataset for Human Activity Recognition Using Smartphones. 21th European Symposium on Artificial Neural Networks, Computational Intelligence and Machine Learning, ESANN 2013
+
+## Dataset 
+
+B. Zhong, R. L. d. Silva, M. Li, H. Huang and E. Lobaton, "Environmental Context Prediction for Lower Limb Prostheses With Uncertainty Quantification," in IEEE Transactions on Automation Science and Engineering, vol. 18, no. 2, pp. 458-470, April 2021, doi: 10.1109/TASE.2020.2993399.
