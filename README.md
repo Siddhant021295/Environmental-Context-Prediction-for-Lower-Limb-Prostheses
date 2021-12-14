@@ -1,4 +1,4 @@
-# Environmental-Context-Prediction-for-Lower-Limb-Prostheses
+# Environmental Context Prediction for Lower Limb Prostheses
 
 ## Project Overview
 
