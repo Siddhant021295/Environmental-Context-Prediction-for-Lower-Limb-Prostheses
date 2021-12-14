@@ -15,13 +15,14 @@ if __name__ == '__main__':
     window_size,step_size=60,4
     min_count= [100000,100000,100000,100000]
     test_size = 0.1
-    norm_method = Normalize([0, 0, 0], [1, 1, 1])
+    norm_method = Normalize([0, 0], [1, 1])
     batch_size = 64
     n_epochs = 5
     optimizer_name = 'Adam'
     criterion = nn.CrossEntropyLoss()
     flag_cuda = torch.cuda.is_available()
     classes = ['Standing/Walking on Solid Ground','Up The Stairs','Down The Stairs','Walking on grass']
+    transform = Compose([norm_method, ToTensor()])
 
     
     data = data_cleaning(location)
@@ -32,7 +33,6 @@ if __name__ == '__main__':
     X_train, Y_train, Y_test, X_test, len_train, len_test, data_code = data_processing(data,window_size,step_size,test_size,min_count)
     
     # Size of the batch
-    transform = Compose([norm_method, ToTensor()])
     train_data = CustomImageDataset(X_train,Y_train,window_size,transform)
     test_data = CustomImageDataset(X_test,Y_test,window_size,transform)
 
@@ -88,45 +88,35 @@ if __name__ == '__main__':
             }
 
 
+    models_all = models()
+    for model_name in models_all:
+        model = models_all[model_name]
+        if flag_cuda:
+            model.cuda()
+            
+        save_model_name = 'data_code_'+data_code+'_optimizer_'+optimizer_name+'_'+model_name+'.pt'
+        model.load_state_dict(torch.load('/content/drive/Shareddrives/Neural Network Class Project/Models_weight/'+save_model_name))
+        print('####################')
+        print(save_model_name)
+        print('####################/n/n')
+        confusion = torch.zeros(classes, classes)
+        confusion = evaluate_confusion_matrix(model,test_loader,flag_cuda,test_loader,confusion,classes)
+        test_plot(confusion, classes)
 
-    # label_count=df['labels']
-    # n_categories=len(df['labels'].unique())
-    # confusion = torch.zeros(n_categories, n_categories)
-    # models_all = models()
-    # for model_name in models_all:
-    #     model = models_all[model_name]
-    #     if flag_cuda:
-    #         model.cuda()
-        
-    #     save_model_name = 'data_code_'+data_code+'_optimizer_Adam'+model_name+'.pt'
-    #     model.load_state_dict(torch.load('./Models_weight/'+save_model_name))
-    #     print('#'*30)
-    #     print('Test')
-    #     print('#'*30)
-    #     assessNet(model,criterion,test_loader)
-    #     print('#'*30)
-    #     print('Train')
-    #     print('#'*30)
-    #     assessNet(model,criterion,train_loader)
+    # Plotting the learning curves
+    legend = []
+    plt.figure(figsize=(20,10))
+    for data in  list(model_data.keys()):
+        if data.find(optimizer_name) != -1 : 
+            epochs_list= model_data[data]['epochs_list']
+            train_losslist= model_data[data]['train_losslist']
+            valid_losslist = model_data[data]['valid_losslist']
+            plt.plot(epochs_list, train_losslist, epochs_list, valid_losslist)
+            legend.append(data+' Training')
+            legend.append(data+' Validation')
 
-    #     confusion = evaluate_confusion_matrix(model,test_loader)
-    #     test_plot(confusion,['Standing/Walking','Up_Stairs','Down_Stairs', 'Walking on grass'])
-
-
-    # # Plotting the learning curves
-    # legend = []
-    # plt.figure(figsize=(20,10))
-    # for data in  list(model_data.keys()):
-    #     if data.find('Adam') != -1 : 
-    #         epochs_list= model_data[data]['epochs_list']
-    #         train_losslist= model_data[data]['train_losslist']
-    #         valid_losslist = model_data[data]['valid_losslist']
-    #         plt.plot(epochs_list, train_losslist, epochs_list, valid_losslist)
-    #         legend.append(data+' Training')
-    #         legend.append(data+' Validation')
-
-    # plt.xlabel("Epoch")
-    # plt.ylabel("Loss")
-    # plt.legend(legend,loc ='right')
-    # plt.title("Performance of Models")
-    # plt.show()
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.legend(legend,loc ='right')
+    plt.title("Performance of Models")
+    plt.show()

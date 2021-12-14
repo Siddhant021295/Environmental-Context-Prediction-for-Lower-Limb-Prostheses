@@ -6,6 +6,7 @@ import numpy as np
 from train import training
 from validation import validation
 import torch
+from sklearn.metrics import classification_report
 
 def optimizers(optimizer_name,model):
     if optimizer_name == 'Adam':
@@ -49,51 +50,49 @@ def test_plot(confusion, all_categories):
 
 
 def assessNet(model,criterion,loader,classes,flag_cuda):
-  # Tracking test loss and accuracy
-  test_loss = 0.0
-  class_correct = list(0. for i in range(len(classes)))
-  class_total = list(0. for i in range(len(classes)))
+    # Tracking test loss and accuracy
+    test_loss = 0.0
+    class_correct = list(0. for i in range(len(classes)))
+    class_total = list(0. for i in range(len(classes)))
 
-  # Setting model to evaluate
-  model.eval()
+    # Setting model to evaluate
+    model.eval()
 
-  # Iterating over batches of test data
-  for data, target in loader:
+    # Iterating over batches of test data
+    for data, target in loader:
       # Obtaining predictions and loss
-      if flag_cuda:
-          data, target = data.cuda(), target.cuda()
-      output = model(data)
-      loss = criterion(output, target)
-      test_loss += loss.item()*data.size(0)
+        if flag_cuda:
+            data, target = data.cuda(), target.cuda()
+        output = model(data)
+        loss = criterion(output, target)
+        test_loss += loss.item()*data.size(0)
 
-      # Converting output probabilities to predicted class
-      _, pred = torch.max(output, 1)    
-      # Comparing predictions to true label
-      correct_tensor = pred.eq(target.data.view_as(pred))
-      correct = np.squeeze(correct_tensor.numpy()) if not flag_cuda else np.squeeze(correct_tensor.cpu().numpy())
-      # Calculating test accuracy for each object class
-      for i in range(len(correct)):
-          label = target.data[i]
-          class_correct[label] += correct[i].item()
-          class_total[label] += 1
+        # Converting output probabilities to predicted class
+        _, pred = torch.max(output, 1)    
+        # Comparing predictions to true label
+        correct_tensor = pred.eq(target.data.view_as(pred))
+        correct = np.squeeze(correct_tensor.numpy()) if not flag_cuda else np.squeeze(correct_tensor.cpu().numpy())
+        # Calculating test accuracy for each object class
+        for i in range(len(correct)):
+            label = target.data[i]
+            class_correct[label] += correct[i].item()
+            class_total[label] += 1
 
-  # Computing the average test loss
-  test_loss = test_loss/len(loader.dataset)
-  print('Loss: {:.6f}\n'.format(test_loss))
+    # Computing the average test loss
+    test_loss = test_loss/len(loader.dataset)
+    print('Loss: {:.6f}\n'.format(test_loss))
 
-  # Computing the class accuracies
-  for i in range(4):
-      if class_total[i] > 0:
-          print('Accuracy of %10s: %2d%% (%2d/%2d)' % (
-              classes[i], 100 * class_correct[i] / class_total[i],
-              np.sum(class_correct[i]), np.sum(class_total[i])))
-      else:
-          print('Accuracy of %10s: N/A (no training examples)' % (classes[i]))
+    # Computing the class accuracies
+    for i in range(4):
+        if class_total[i] > 0:
+            print('Accuracy of %10s: %2d%% (%2d/%2d)' % (
+                classes[i], 100 * class_correct[i] / class_total[i],
+                np.sum(class_correct[i]), np.sum(class_total[i])))
+        else:
+            print('Accuracy of %10s: N/A (no training examples)' % (classes[i]))
 
-  # Computing the overall accuracy
-  print('\nAccuracy (Overall): %2d%% (%2d/%2d)' % (
-      100. * np.sum(class_correct) / np.sum(class_total),
-      np.sum(class_correct), np.sum(class_total)))
+    # Computing the overall accuracy
+    print('\nAccuracy (Overall): %2d%% (%2d/%2d)' % (100. * np.sum(class_correct) / np.sum(class_total),np.sum(class_correct), np.sum(class_total)))
 
 
 
@@ -131,3 +130,33 @@ def trainNet(model,criterion,n_epochs,flag_cuda,save_model_name,optimizer,train_
         
   return epochs_list, train_losslist, valid_losslist, model
 
+
+def evaluate_confusion_matrix(model,test_loader,flag_cuda,confusion,n_categories):
+    prediction = []
+    target_v =[]
+    with torch.no_grad():
+        for data, target in test_loader:
+            # Moving tensors to GPU if CUDA is available
+            if flag_cuda:
+                data, target = data.cuda(), target.cuda()
+            
+            output = model(data)
+            _, preds = torch.max(output, 1)
+            
+            for t, p in zip(target.view(-1), preds.view(-1)):
+                confusion[t.long(), p.long()] += 1
+                prediction.append(int(t))
+                target_v.append(int(p))
+                #print(confusion)
+
+        print(classification_report(target_v, prediction, target_names=['Standing/Walking','Up_Stairs','Down_Stairs', 'Walking on grass']))
+    
+        accuracy = 0
+        for i in range(n_categories):
+            confusion[i] = confusion[i] / confusion[i].sum()
+            accuracy += confusion[i][i]
+        accuracy /= n_categories
+    return confusion
+    # Displaying the average accuracy
+    # print('Average Macro Accuracy = {:.2f}\n'.format(accuracy))
+    return confusion
