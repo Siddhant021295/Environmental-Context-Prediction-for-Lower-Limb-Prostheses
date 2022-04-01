@@ -9,7 +9,6 @@ def training(train_losslist,model,train_loader,flag_cuda,criterion,optimizer,len
 
         output = model(data)
         # Calculating the batch loss
-        # print(type(output),output, type(target),target)
         loss = criterion(output, target)
         # Backward pass: compute gradient of loss with respect to parameters
         loss.backward()

@@ -89,7 +89,7 @@ def stratified_with_same_number_of_samples(X_train,Y_train,min_count):
     return X_train,Y_train
 
 
-def data_processing(data_all,window_size,step_size,test_size,min_count):
+def data_processing(data_all,window_size,step_size,val_size,min_count,model_selection):
     # Creating a New Column for identifing subject, name ,instance in the same column 
     data_all['subject_name_instance'] = data_all['subject_name']+'_'+data_all['subject_instance']
 
@@ -109,15 +109,20 @@ def data_processing(data_all,window_size,step_size,test_size,min_count):
     df['labels'].value_counts()
 
     #train
-    X_train, X_test, Y_train, Y_test =train_test_split(df['data_point'],df['labels'], test_size=test_size, random_state=42, shuffle=True, stratify=df['labels'].values)
-    
-    X_train, Y_train = stratified_with_same_number_of_samples(X_train,Y_train,min_count)
+    if model_selection == True:
+        X_train, X_test, Y_train, Y_test =train_test_split(df['data_point'],df['labels'], test_size=val_size, random_state=42, shuffle=True, stratify=df['labels'].values)
+        
+        X_train, Y_train = stratified_with_same_number_of_samples(X_train,Y_train,min_count)
 
-    X_test,Y_test= X_test.values,Y_test.values
+        X_test,Y_test= X_test.values,Y_test.values
 
-    X_train = np.vstack(X_train)
-    X_test = np.vstack(X_test)
+        X_train = np.vstack(X_train)
+        X_test = np.vstack(X_test)
 
-    len_train = X_train.shape[0]
-    len_test = X_test.shape[0]
-    return X_train, Y_train,Y_test,X_test, len_train,len_test,data_code
+        len_train = X_train.shape[0]
+        len_test = X_test.shape[0]
+        return X_train, Y_train,Y_test,X_test, len_train,len_test,data_code
+    else : 
+        X , Y = stratified_with_same_number_of_samples(df['data_point'],df['labels'],min_count)
+
+        return X,Y,data_code,X.shape[0]

@@ -63,27 +63,5 @@ if __name__ == '__main__':
     # data_complete.to_csv('Data/CleanData/data_all.csv',index= False)
 
 
-    # dtype = {
-    #     'subject_name'  : np.str_
-    #     ,'subject_instance' : np.str_
-    #     ,'timestamp'        : np.float64
-    #     ,'x_accelerometer'   : np.float64
-    #     ,'y_accelerometer'  : np.float64
-    #     ,'z_accelerometer'  : np.float64
-    #     ,'x_gyroscope'      : np.float64
-    #     ,'y_gyroscope'      : np.float64
-    #     ,'z_gyroscope'      : np.float64
-    #     ,'labels'           : np.float64
-    #     }
-
-    # data_all=pd.read_csv('Data/CleanData/data_all.csv',dtype=dtype)
-
-    # data_all['subject_name_instance']=data_all['subject_name']+'_'+data_all['subject_instance']
-
-    # data_all=data_all.dropna()
-    
-    # return data_all
-    
-
 
 

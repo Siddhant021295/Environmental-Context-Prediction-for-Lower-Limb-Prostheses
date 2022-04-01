@@ -7,7 +7,18 @@ from train import training
 from validation import validation
 import torch
 from sklearn.metrics import classification_report
+import pandas as pd
 
+
+dtype = {
+    'timestamp'        : np.float64
+    ,'x_accelerometer'   : np.float64
+    ,'y_accelerometer'  : np.float64
+    ,'z_accelerometer'  : np.float64
+    ,'x_gyroscope'      : np.float64
+    ,'y_gyroscope'      : np.float64
+    ,'z_gyroscope'      : np.float64
+    }
 def optimizers(optimizer_name,model):
     if optimizer_name == 'Adam':
         return optim.Adam(model.parameters())
@@ -16,18 +27,6 @@ def optimizers(optimizer_name,model):
     if optimizer_name == 'SGD':
         return optim.SGD(model.parameters(), lr=.001,momentum = 0.9) 
 
-def models(flag_cuda):
-    model_CNN_Net = CNN.CNN(flag_cuda)
-    model_Net_CNN_Norm = CNN_Norm.CNN_Norm(flag_cuda)
-    model_Net_CNN_Norm_Dropout = CNN_Norm_Dropout.CNN_Norm_Dropout(flag_cuda)
-    model_Net_CNN_Norm_Dropout_All = CNN_Norm_Dropout_All.CNN_Norm_Dropout_All(flag_cuda)
-    model_Net_CNN_LSTM_Norm_Dropout_All = CNN_LSTM_Batch_Normalization.CNN_LSTM_Batch_Normalization(flag_cuda)
-    return {
-          'model_CNN_Net':model_CNN_Net,
-          'model_Net_CNN_LSTM_Norm_Dropout_All':model_Net_CNN_LSTM_Norm_Dropout_All,
-          'model_Net_CNN_Norm' : model_Net_CNN_Norm,
-          'model_Net_CNN_Norm_Dropout' : model_Net_CNN_Norm_Dropout,
-          'model_Net_CNN_Norm_Dropout_All': model_Net_CNN_Norm_Dropout_All}
 
 
 def test_plot(confusion, all_categories):
@@ -46,8 +45,6 @@ def test_plot(confusion, all_categories):
     ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
 
     plt.show()
-
-
 
 def assessNet(model,criterion,loader,classes,flag_cuda):
     # Tracking test loss and accuracy
@@ -82,53 +79,72 @@ def assessNet(model,criterion,loader,classes,flag_cuda):
     test_loss = test_loss/len(loader.dataset)
     print('Loss: {:.6f}\n'.format(test_loss))
 
+    result_dic = {}
     # Computing the class accuracies
     for i in range(4):
         if class_total[i] > 0:
-            print('Accuracy of %10s: %2d%% (%2d/%2d)' % (
-                classes[i], 100 * class_correct[i] / class_total[i],
-                np.sum(class_correct[i]), np.sum(class_total[i])))
+            print('Accuracy of %10s: %2d%% (%2d/%2d)' % (classes[i], 100 * class_correct[i] / class_total[i],np.sum(class_correct[i]), np.sum(class_total[i])))
+            result_dic['Accuracy of'+classes[i]] = 100 * class_correct[i] / class_total[i]
         else:
             print('Accuracy of %10s: N/A (no training examples)' % (classes[i]))
 
     # Computing the overall accuracy
     print('\nAccuracy (Overall): %2d%% (%2d/%2d)' % (100. * np.sum(class_correct) / np.sum(class_total),np.sum(class_correct), np.sum(class_total)))
-
+    result_dic['Accuracy (Overall)'] = 100. * np.sum(class_correct) / np.sum(class_total)
+    return result_dic
 
 
 def trainNet(model,criterion,n_epochs,flag_cuda,save_model_name,optimizer,train_loader,test_loader,len_train,len_test):
       
-  # Unpacking the number of epochs to train the model
-  epochs_list = [*range(1,n_epochs+1)]
+    # Unpacking the number of epochs to train the model
+    epochs_list = [*range(1,n_epochs+1)]
 
-  # List to store loss to visualize
-  train_losslist = []
-  valid_losslist = []
-  valid_loss_min = np.Inf # track change in validation loss
+    # List to store loss to visualize
+    train_losslist = []
+    valid_losslist = []
+    valid_loss_min = np.Inf # track change in validation loss
 
-  for epoch in epochs_list:
-      # Change the mode of the model to training
-      model.train()
-      
-      # Training
-      train_losslist,train_loss,model = training(train_losslist,model,train_loader,flag_cuda,criterion,optimizer,len_train)
-      
-      # Change the mode of the model to evaluation
-      model.eval()
-      
-      #Evaluation
-      valid_losslist,valid_loss,model = validation(valid_losslist,model,test_loader,flag_cuda,len_test,criterion)
-
-      # Printing training/validation statistics 
-      print('Epoch: {} \tTraining Loss: {:.6f} \tValidation Loss: {:.6f}'.format(epoch, train_loss, valid_loss))
-      
-      # Saving model if validation loss has decreased
-      if valid_loss <= valid_loss_min:
-          print('Validation loss decreased ({:.6f} --> {:.6f}).  Saving model ...'.format(valid_loss_min,valid_loss))
-          torch.save(model.state_dict(),'./Models_weight/'+save_model_name)
-          valid_loss_min = valid_loss
+    for epoch in epochs_list:
+        # Change the mode of the model to training
+        model.train()
         
-  return epochs_list, train_losslist, valid_losslist, model
+        # Training
+        train_losslist,train_loss,model = training(train_losslist,model,train_loader,flag_cuda,criterion,optimizer,len_train)
+        
+        # Change the mode of the model to evaluation
+        model.eval()
+        
+        #Evaluation
+        valid_losslist,valid_loss,model = validation(valid_losslist,model,test_loader,flag_cuda,len_test,criterion)
+
+        # Printing training/validation statistics 
+        print('Epoch: {} \tTraining Loss: {:.6f} \tValidation Loss: {:.6f}'.format(epoch, train_loss, valid_loss))
+        
+        # Saving model if validation loss has decreased
+        if valid_loss <= valid_loss_min:
+            print('Validation loss decreased ({:.6f} --> {:.6f}).  Saving model ...'.format(valid_loss_min,valid_loss))
+            torch.save(model.state_dict(),'./Models_weight/'+save_model_name)
+            valid_loss_min = valid_loss
+        
+    return epochs_list, train_losslist, valid_losslist, model
+
+
+def train_network(model,criterion,n_epochs,flag_cuda,save_model_name,optimizer,train_loader,len_train):
+    epochs_list = [*range(1,n_epochs+1)]
+
+    # List to store loss to visualize
+    train_losslist = []
+    
+    for epoch in epochs_list:
+        # Change the mode of the model to training
+        model.train()
+        
+        # Training
+        _,_,model = training(train_losslist,model,train_loader,flag_cuda,criterion,optimizer,len_train)
+        
+        torch.save(model.state_dict(),'./Models_weight/'+save_model_name)
+
+    return model      
 
 
 def evaluate_confusion_matrix(model,test_loader,flag_cuda,confusion,n_categories):
@@ -157,6 +173,31 @@ def evaluate_confusion_matrix(model,test_loader,flag_cuda,confusion,n_categories
             accuracy += confusion[i][i]
         accuracy /= n_categories
     return confusion
-    # Displaying the average accuracy
-    # print('Average Macro Accuracy = {:.2f}\n'.format(accuracy))
-    return confusion
+
+
+def data_prep_test(window_size,step_size,data_all):
+    data=[]
+
+    df_train = data_all
+    for i in range(0, df_train.shape[0] - window_size, step_size):
+        xs_acc = df_train['x_accelerometer'].values[i: i + window_size].reshape(1,window_size)
+        ys_acc = df_train['y_accelerometer'].values[i: i + window_size].reshape(1,window_size)
+        zs_acc = df_train['z_accelerometer'].values[i: i + window_size].reshape(1,window_size)
+        xs_gyr = df_train['x_accelerometer'].values[i: i + window_size].reshape(1,window_size)
+        ys_gyr = df_train['y_accelerometer'].values[i: i + window_size].reshape(1,window_size)
+        zs_gyr = df_train['z_accelerometer'].values[i: i + window_size].reshape(1,window_size)
+        #label = stats.mode(df_train['labels'][i: i + window_size])[0][0]
+        data_point=np.vstack((xs_acc,ys_acc,zs_acc,xs_gyr,ys_gyr,zs_gyr))
+        #train_labels.append(label)
+        data.append(data_point.reshape(1,6,window_size))
+    return data
+
+def handle_file(path, filename, end_text):
+    subject = int(filename.split(end_text)[0].split('subject_')[1].split('_')[0])
+    instance = int(filename.split(end_text)[0].split('subject_')[1].split('_')[1])
+    df = pd.read_csv(path+"/"+filename, header=None , dtype=dtype)
+    df['subject_name'] = subject
+    df['subject_instance'] = instance    
+    return df
+
+
